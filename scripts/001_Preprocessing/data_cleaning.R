@@ -58,7 +58,8 @@ preds_both <- intersect(shhs1_preds, shhs2_preds)
 
 # SUBSET OBSERVATIONS -----------------------------------------------------
 
-# remove patients from population who have existing cvd or chd (any_cvd, any_chd)
+# remove patients from population who have existing cvd or chd (any_cvd, any_chd) 
+# Can't find a measure for this at baseline
 
 # Patients who report having hypertension - do we want to remove these?
 
@@ -74,12 +75,30 @@ shhs1 %>%
 #   2      1  2069
 #   3     NA   251
 
-# Self reported angina (angina15)
+# Self reported angina (angina15) - do we want to remove these? 
+shhs1 %>% 
+  group_by(angina15) %>% 
+  summarize(cnt = n())
 
+# # A tibble: 4 x 2
+# angina15   cnt
+# <dbl> <int>
+#   1        0  5219
+# 2        1   424
+# 3        8    45
+# 4       NA   116
+# Very small proportion
 
+# PREPARE MODELING DATA ---------------------------------------------------
+# Create a set of data that has baseline predictors and incident outcomes, no imputation
+model_data <- shhs1[, names(shhs1) %in% c('nsrrid', preds)] %>% 
+  left_join(
+    outcomes,
+    by = c("nsrrid", "gender", "race", "age_s1")
+  )
 
 # SAVE DATA ---------------------------------------------------------------
 
 save(shhs1, shhs2, outcomes, preds, preds_both, file = "../../data/processed_data.rda")
-  
+save(model_data, file = '../../data/model_data_no_impute.rda')
 
