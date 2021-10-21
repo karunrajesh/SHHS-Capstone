@@ -110,4 +110,19 @@ for(i in seq_along(model_form)) {
 }
 
 
+## C.  Logistic regression (no regularization, complete cases, training set, one covariate at a time)
+model_form_single <- expand.grid(outcome_vars, sleep_preds) %>% 
+                    mutate(model_form = paste(Var1,'~' ,Var2)) 
 
+models_C <- list()
+pred_probs_C <- list()
+pred_class_C <- list()
+for(i in 1:nrow(model_form_single)) {
+  print(paste("Modeling: ", model_form_single$model_form[i]))
+  models_C[[i]] <- glm(model_form_single$model_form[i], family = 'binomial', data = model_dat_filt_cc)
+  pred_probs_C[[i]] <- predict(models_C[[i]], model_dat_filt_cc, type = "response")
+  pred_class_C[[i]] <- ifelse(pred_probs_C[[i]] > 0.5, 1, 0)
+  
+  get_model_metrics(as.factor(model_dat_filt_cc[, model_form_single$Var1[i]] %>% unlist()), as.factor(pred_class_C[[i]]))
+  print(summary(models_C[[i]]))
+}
