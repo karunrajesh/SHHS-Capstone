@@ -107,23 +107,23 @@ shhs1 %>%
   
 
 
-# BASLINE LOGISITIC MODELS ------------------------------------------------
-
-# join datasets 
-shhs1 <- shhs1 %>% 
-  left_join(outcomes_filtered, by = c('nsrrid', 'pptid'))
-
-model_statement = paste0('any_cvd ~ ', paste(preds[preds %in% names(shhs1)], collapse = " + "))
-logit_cvd <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
-summary(logit_cvd)
-
-# Just sleep architecture
-model_statement = paste0('any_cvd ~ ', paste(c('supinep', 'slpeffp', 'slpprdp', 'timeremp', 'times34p', 'timest1p', 'timest2p', 'waso'), collapse = ' + '))
-logit_cvd_sleeparch <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
-summary(logit_cvd_sleeparch)
-
-
-# Just sleep architecture, with revasc proc
-model_statement = paste0('cvd_death ~ ', paste(c('supinep', 'slpeffp', 'slpprdp', 'timeremp', 'times34p', 'timest1p', 'timest2p', 'waso'), collapse = ' + '))
-logit_cvd_sleeparch <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
-summary(logit_cvd_sleeparch)
+# # BASLINE LOGISITIC MODELS ------------------------------------------------
+# 
+# # join datasets 
+# shhs1 <- shhs1 %>% 
+#   left_join(outcomes_filtered, by = c('nsrrid', 'pptid'))
+# 
+# model_statement = paste0('any_cvd ~ ', paste(preds[preds %in% names(shhs1)], collapse = " + "))
+# logit_cvd <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
+# summary(logit_cvd)
+# 
+# # Just sleep architecture
+# model_statement = paste0('any_cvd ~ ', paste(c('supinep', 'slpeffp', 'slpprdp', 'timeremp', 'times34p', 'timest1p', 'timest2p', 'waso'), collapse = ' + '))
+# logit_cvd_sleeparch <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
+# summary(logit_cvd_sleeparch)
+# 
+# 
+# # Just sleep architecture, with revasc proc
+# model_statement = paste0('cvd_death ~ ', paste(c('supinep', 'slpeffp', 'slpprdp', 'timeremp', 'times34p', 'timest1p', 'timest2p', 'waso'), collapse = ' + '))
+# logit_cvd_sleeparch <- glm(model_statement, family = binomial(), data = shhs1[complete.cases(shhs1[, preds[preds %in% names(shhs1)]]), ])
+# summary(logit_cvd_sleeparch)

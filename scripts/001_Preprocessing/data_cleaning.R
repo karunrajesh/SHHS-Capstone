@@ -88,17 +88,28 @@ shhs1 %>%
 # 3        8    45
 # 4       NA   116
 # Very small proportion
-
 # PREPARE MODELING DATA ---------------------------------------------------
-# Create a set of data that has baseline predictors and incident outcomes, no imputation
-model_data <- shhs1[, names(shhs1) %in% c('nsrrid', preds)] %>% 
+
+## Subset data for our outcomes of interest
+baseline_preds <- c('nsrrid', names(shhs1)[names(shhs1) %in% preds])
+# remove hosnr02, due to high missingness
+baseline_preds <- baseline_preds[baseline_preds != 'hosnr02']
+outcome_vars <- c('any_cvd', 'any_chd', 'cvd_death', 'chd_death')
+
+
+model_data <- shhs1[, baseline_preds] %>% 
   left_join(
     outcomes,
     by = c("nsrrid", "gender", "race", "age_s1")
   )
 
-# SAVE DATA ---------------------------------------------------------------
+# Create a set of data that has baseline predictors and incident outcomes, no imputation
+model_dat_filt <- model_data[, c(baseline_preds, outcome_vars) ] %>% 
+  filter(!is.na(any_cvd), !is.na(any_chd), !is.na(cvd_death), !is.na(chd_death))
 
-save(shhs1, shhs2, outcomes, preds, preds_both, file = "../../data/processed_data.rda")
-save(model_data, file = '../../data/model_data_no_impute.rda')
+
+# SAVE DATA ---------------------------------------------------------------
+# Taking out preds_both
+save(shhs1, shhs2, outcomes, preds, outcome_vars, file = "../../data/processed_data.rda")
+save(model_dat_filt, file = '../../data/model_data_no_impute.rda')
 
