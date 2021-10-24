@@ -19,7 +19,7 @@ library(corrplot)
 
 
 load('../../data/processed_data.rda')
-
+load('../../data/model_data_no_impute.rda')
 shhs1_preds <-  preds[preds %in% names(shhs1)]
 shhs2_preds <-  preds[preds %in% names(shhs2)]
 
@@ -106,6 +106,51 @@ shhs1 %>%
   ggtitle('Distribution of Sleepliness Score at Baseline')
   
 
+# EDA on final pop --------------------------------------------------------
+
+# distribution of age by gender
+model_dat_filt %>% 
+  mutate(race = cut(race, 3, labels=c('White', 'Black', 'Other')) ) %>% 
+  ggplot(aes(x = race, y = age_s1, fill = race)) +
+  scale_fill_viridis_d(alpha = 0.3) +
+  theme_bw() +
+  xlab('Race') +
+  ylab('Age at Baseline') +
+  ggtitle('Distribution of Age across Race') +
+  geom_violin()
+
+# AHI index distribution
+shhs1 %>% 
+  filter(nsrrid %in% model_dat_filt$nsrrid) %>% 
+  mutate(sleep_apnea_cat = case_when(
+    ahi_a0h3 < 5 ~ 'None/Minimal',
+    ahi_a0h3 >= 5 & ahi_a0h3 < 15 ~ 'Mild',
+    ahi_a0h3 >= 15 & ahi_a0h3 < 30 ~ 'Moderate',
+    ahi_a0h3 >= 30 ~ 'Severe'
+  )) %>% 
+  group_by(sleep_apnea_cat) %>% 
+  summarize(count = n()) %>% 
+  ggplot(aes(x = factor(sleep_apnea_cat, levels = c('None/Minimal', 'Mild', 'Moderate', 'Severe')), y = count)) +
+  geom_bar(stat = 'identity', fill = '#481567FF', color = "#440154FF", alpha = 0.3) +
+  # scale_x_continuous(breaks = seq(0, 150, by = 20)) +
+  xlab('Sleep Apnea Severity') +
+  ylab('Count') +
+  ggtitle('Distribution of Sleep Apnea at Baseline', subtitle = 'Using AHI >= 3%') +
+  theme_bw()
+  
+# Frequency of our outcomes of interest 
+outcomes_freq <- data.frame(apply(model_dat_filt[, outcome_vars],2, sum))
+outcomes_freq$outcome <- row.names(outcomes_freq)
+names(outcomes_freq) <- c('Count', 'Outcome')
+
+outcomes_freq %>% 
+  ggplot(aes(x = factor(Outcome, levels = c('any_cvd', 'any_chd', 'cvd_death', 'chd_death')), y = Count)) +
+  geom_bar(stat = 'identity', fill = '#481567FF', color = "#440154FF", alpha = 0.3) +
+  # scale_x_continuous(breaks = seq(0, 150, by = 20)) +
+  xlab('Outcome of Interest') +
+  ylab('Count') +
+  ggtitle('Distribution of Outcomes of Interest') +
+  theme_bw()
 
 # # BASLINE LOGISITIC MODELS ------------------------------------------------
 # 

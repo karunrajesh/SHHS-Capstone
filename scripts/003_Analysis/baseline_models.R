@@ -33,7 +33,6 @@ get_model_metrics <- function(test_y, preds, model_type_input, model_form_input)
   precision <- posPredValue(preds, test_y)
   recall <- sensitivity(preds, test_y)
   F1 <- (2 * precision * recall) / (precision + recall)
-  print('output')
   metrics_output <- data.frame(
     model_type = model_type_input,
     model_form = model_form_input,
@@ -60,6 +59,8 @@ model_form_single <- expand.grid(outcome_vars, sleep_preds) %>%
 
 for(name in names(models)){
   model = models[[name]]
+  
+  print(summary(model))
   # TRAIN TEST SPLIT --------------------------------------------------------
   train_ind <- sample(1:nrow(model), size = floor(nrow(model)*.7))
   test_ind <- 1:nrow(model)
@@ -76,7 +77,7 @@ for(name in names(models)){
     pred_class_A[[i]] <- ifelse(pred_probs_A[[i]] > 0.5, 1, 0)
     print(paste("Modeling: ", outcome_vars[i]))
     pred_metrics_A[[i]] <- get_model_metrics(as.factor(model[test_ind, outcome_vars[i]] %>% unlist()), as.factor(pred_class_A[[i]]), "LogisticRegression", model_form[i])
-    print(summary(models_A[[i]]))
+    # print(summary(models_A[[i]]))
   }
   
   ## B. Logistic regression (Lasso penalty)
@@ -96,7 +97,7 @@ for(name in names(models)){
     pred_class_B[[i]] <- ifelse(pred_probs_B[[i]] > 0.5, 1, 0)
     print(paste("Modeling: ", outcome_vars[i]))
     pred_metrics_B[[i]] <- get_model_metrics(as.factor(y_test), as.factor(pred_class_B[[i]]), "LogisticRegressionLasso", model_form[i])
-    print(coef(models_B[[i]], s = min(models_B[[i]]$lambda)))
+    # print(coef(models_B[[i]], s = min(models_B[[i]]$lambda)))
   }
   
   ## C.  Logistic regression (no regularization, complete cases, training set, one covariate at a time)
@@ -112,7 +113,7 @@ for(name in names(models)){
     pred_probs_C[[i]] <- predict(models_C[[i]], model_dat_filt_cc, type = "response")
     pred_class_C[[i]] <- ifelse(pred_probs_C[[i]] > 0.5, 1, 0)
     pred_metrics_C[[i]] <- get_model_metrics(as.factor(model_dat_filt_cc[, model_form_single$Var1[i]] %>% unlist()), as.factor(pred_class_C[[i]]), "LogisticRegressionSingle", model_form_single$model_form[i])
-    print(summary(models_C[[i]]))
+    # print(summary(models_C[[i]]))
   }
   
   
