@@ -110,14 +110,31 @@ shhs1 %>%
 
 # distribution of age by gender
 model_dat_filt %>% 
-  mutate(race = cut(race, 3, labels=c('White', 'Black', 'Other')) ) %>% 
-  ggplot(aes(x = race, y = age_s1, fill = race)) +
+  mutate(gender = cut(gender, 2, labels=c('Male', 'Female')) ) %>% 
+  ggplot(aes(x = gender, y = age_s1, fill = gender)) +
   scale_fill_viridis_d(alpha = 0.3) +
   theme_bw() +
-  xlab('Race') +
+  xlab('Gender') +
   ylab('Age at Baseline') +
-  ggtitle('Distribution of Age across Race') +
+  ggtitle('Distribution of Age across Gender') +
   geom_violin()
+
+# Distribution of counts by race and gender
+model_dat_filt %>% 
+  mutate(Race = cut(race, 3, labels=c('White', 'Black', 'Other')),
+         Gender = cut(gender, 2, labels=c('Male', 'Female'))
+         ) %>% 
+  select(Race, Gender, age_s1) %>% 
+  group_by(Race, Gender) %>% 
+  summarize(pct_pop = n()/nrow(model_dat_filt)) %>% 
+  ggplot(aes(x = Race, y = pct_pop, fill = Gender)) +
+  geom_bar(stat = 'identity', position = 'dodge', color = 'black') +
+  scale_fill_viridis_d(alpha = 0.3) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_bw() +
+  xlab('Race') +
+  ylab('% of Population') +
+  ggtitle('Distribution of Race and Gender')
 
 # AHI index distribution
 shhs1 %>% 
@@ -129,12 +146,13 @@ shhs1 %>%
     ahi_a0h3 >= 30 ~ 'Severe'
   )) %>% 
   group_by(sleep_apnea_cat) %>% 
-  summarize(count = n()) %>% 
-  ggplot(aes(x = factor(sleep_apnea_cat, levels = c('None/Minimal', 'Mild', 'Moderate', 'Severe')), y = count)) +
+  summarize(pct_pop = n()/nrow(model_dat_filt)) %>% 
+  ggplot(aes(x = factor(sleep_apnea_cat, levels = c('None/Minimal', 'Mild', 'Moderate', 'Severe')), y = pct_pop)) +
   geom_bar(stat = 'identity', fill = '#481567FF', color = "#440154FF", alpha = 0.3) +
   # scale_x_continuous(breaks = seq(0, 150, by = 20)) +
+  scale_y_continuous(labels = scales::percent) +
   xlab('Sleep Apnea Severity') +
-  ylab('Count') +
+  ylab('% of Population') +
   ggtitle('Distribution of Sleep Apnea at Baseline', subtitle = 'Using AHI >= 3%') +
   theme_bw()
   

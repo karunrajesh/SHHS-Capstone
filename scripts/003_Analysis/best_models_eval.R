@@ -77,7 +77,7 @@ get_model_metrics <- function(test_y, preds, model_type_input, model_form_input)
 }
 
 
-cv_results <- function(dataname, model_form, outcome_var) {
+cv_results <- function(dataname, model_form, outcome_var, models) {
   dt <- models[[dataname]]
   # rows in data
   n = nrow(dt)
@@ -122,23 +122,23 @@ cv_results <- function(dataname, model_form, outcome_var) {
 
 cvd_results = list()
 for(name in names(models)){
-  cvd_results[[name]] <- cv_results(name, model_form_any_cvd, 'any_cvd')
+  cvd_results[[name]] <- cv_results(name, model_form_any_cvd, 'any_cvd', models)
 }
 
 chd_results = list()
 for(name in names(models)){
-  chd_results[[name]] <- cv_results(name, model_form_any_chd, 'any_chd')
+  chd_results[[name]] <- cv_results(name, model_form_any_chd, 'any_chd', models)
 }
 
 
 cvd_death_results = list()
 for(name in names(models)){
-  cvd_death_results[[name]] <- cv_results(name, model_form_cvd_death, 'cvd_death')
+  cvd_death_results[[name]] <- cv_results(name, model_form_cvd_death, 'cvd_death', models)
 }
 
 chd_death_results = list()
 for(name in names(models)){
-  chd_death_results[[name]] <- cv_results(name, model_form_chd_death, 'chd_death')
+  chd_death_results[[name]] <- cv_results(name, model_form_chd_death, 'chd_death', models)
 }
 
 
@@ -150,5 +150,54 @@ chd_death_results <- map_df(chd_death_results, bind_rows)
 
 
 
+# DOWNSAMPLE TO MODEL DEATH OUTCOMES --------------------------------------
+cc_chd <- model_dat_filt_cc %>% filter(chd_death == 1) %>% nrow() # 180
+cc_cvd <- model_dat_filt_cc %>% filter(cvd_death == 1) %>% nrow() # 180
+whole_cvd <- mice_imputed %>% filter(cvd_death == 1) %>% nrow() # 235
+whole_chd <- mice_imputed %>% filter(chd_death == 1) %>% nrow() # 359
 
+models_ds_chd <- list(
+  "Complete Cases" = bind_rows(
+    model_dat_filt_cc %>% filter(chd_death == 0) %>% sample_n(cc_chd),
+    model_dat_filt_cc %>% filter(chd_death == 1)
+  ),
+  "Mean Imputation"  = bind_rows(
+    trad_impute %>% filter(chd_death == 0) %>% sample_n(whole_chd),
+    trad_impute %>% filter(chd_death == 1)
+  ),
+  "MICE Imputation"  = bind_rows(
+    mice_imputed %>% filter(chd_death == 0) %>% sample_n(whole_chd),
+    mice_imputed %>% filter(chd_death == 1)
+  )
+)
+
+models_ds_cvd <- list(
+  "Complete Cases" = bind_rows(
+    model_dat_filt_cc %>% filter(cvd_death == 0) %>% sample_n(cc_cvd),
+    model_dat_filt_cc %>% filter(cvd_death == 1)
+  ),
+  "Mean Imputation"  = bind_rows(
+    trad_impute %>% filter(cvd_death == 0) %>% sample_n(whole_cvd),
+    trad_impute %>% filter(cvd_death == 1)
+  ),
+  "MICE Imputation"  = bind_rows(
+    mice_imputed %>% filter(cvd_death == 0) %>% sample_n(whole_cvd),
+    mice_imputed %>% filter(cvd_death == 1)
+  )
+)
+
+
+cvd_death_results = list()
+for(name in names(models_ds_cvd)){
+  cvd_death_results[[name]] <- cv_results(name, model_form_cvd_death, 'cvd_death', models_ds_cvd)
+}
+
+chd_death_results = list()
+for(name in names(models_ds_chd)){
+  chd_death_results[[name]] <- cv_results(name, model_form_chd_death, 'chd_death', models_ds_chd)
+}
+
+
+cvd_death_results <- map_df(cvd_death_results, bind_rows)
+chd_death_results <- map_df(chd_death_results, bind_rows)
     
