@@ -95,16 +95,16 @@ shhs1 %>%
   ggtitle('Distribution of Sleepliness Score at Baseline')
 
 
-# who experiences sleep apnea?
-shhs1 %>% 
-  filter(nsrrid %in% both_ids) %>% 
-  ggplot(aes(x = saqli)) +
-  geom_histogram(fill = 'darkorchid2', color = 'darkorchid3') + 
-  theme_bw() +
-  xlab('Epworth Sleepiness Scale Score at Baseline') +
-  ylab('Count') +
-  ggtitle('Distribution of Sleepliness Score at Baseline')
-  
+# # who experiences sleep apnea?
+# shhs1 %>% 
+#   filter(nsrrid %in% both_ids) %>% 
+#   ggplot(aes(x = saqli)) +
+#   geom_histogram(fill = 'darkorchid2', color = 'darkorchid3') + 
+#   theme_bw() +
+#   xlab('Epworth Sleepiness Scale Score at Baseline') +
+#   ylab('Count') +
+#   ggtitle('Distribution of Sleepliness Score at Baseline')
+#   
 
 # EDA on final pop --------------------------------------------------------
 
@@ -169,6 +169,18 @@ outcomes_freq %>%
   ylab('Count') +
   ggtitle('Distribution of Outcomes of Interest') +
   theme_bw()
+
+# Look at distribution of "prev" outcomes 
+prev_outcomes <- names(outcomes)[str_detect(names(outcomes), 'prev')]
+outcomes[, c('nsrrid', prev_outcomes)] %>% 
+  filter(nsrrid %in% model_dat_filt$nsrrid) %>% 
+  select(-nsrrid) %>% 
+  gather() %>% 
+  filter(!is.na(value)) %>% 
+  group_by(key) %>% 
+  summarize(cnt = sum(value))
+
+
 
 # # BASLINE LOGISITIC MODELS ------------------------------------------------
 # 

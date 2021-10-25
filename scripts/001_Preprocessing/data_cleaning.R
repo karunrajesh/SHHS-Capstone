@@ -31,7 +31,7 @@ names(shhs2) <- tolower(names(shhs2))
 # Predictors suggested by Dr. Wang
 # Sleep predictors:
 # Sleep architecture – supinep, slpeffp, slpprdp, timeremp, times34p, timest1p, timest2p, waso
-# Polysomnography (osa) – rdi3p, ai_all, avgsat, minsat 
+# Polysomnography (osa) – rdi3p, ai_all, avgsat, minsat  ## ADD IN ahi index
 # Questionnaire – ess_s1, saqli, fosq, hosnr02, legcrp02, sh308a-sh308f
 # Other predictors/covariates to consider:
 # Anthropometry – bmi_s1, height, waist, neck20
@@ -58,36 +58,12 @@ preds_both <- intersect(shhs1_preds, shhs2_preds)
 
 # SUBSET OBSERVATIONS -----------------------------------------------------
 
-# remove patients from population who have existing cvd or chd (any_cvd, any_chd) 
-# Can't find a measure for this at baseline
+# Subset observations to exclude people with previous reports
+names(outcomes)[str_detect(names(outcomes), "prev")]
+# "prev_mi"       "prev_mip"      "prev_stk"      "prev_chf"      "prev_revpro"   "prev_ang"      "afibprevalent"
+no_prev_ids <- outcomes %>% 
+  filter(prev_mi == 0, prev_mip == 0, prev_stk == 0, prev_chf == 0, prev_revpro == 0, afibprevalent == 0) %>% distinct(nsrrid) %>% pull(nsrrid)
 
-# Patients who report having hypertension - do we want to remove these?
-
-# N
-shhs1 %>% 
-  group_by(srhype) %>% 
-  summarize(cnt = n())
-
-# # A tibble: 3 x 2
-    # srhype   cnt
-#       <dbl> <int>
-#   1      0  3484
-#   2      1  2069
-#   3     NA   251
-
-# Self reported angina (angina15) - do we want to remove these? 
-shhs1 %>% 
-  group_by(angina15) %>% 
-  summarize(cnt = n())
-
-# # A tibble: 4 x 2
-# angina15   cnt
-# <dbl> <int>
-#   1        0  5219
-# 2        1   424
-# 3        8    45
-# 4       NA   116
-# Very small proportion
 # PREPARE MODELING DATA ---------------------------------------------------
 
 ## Subset data for our outcomes of interest
@@ -104,12 +80,13 @@ model_data <- shhs1[, baseline_preds] %>%
   )
 
 # Create a set of data that has baseline predictors and incident outcomes, no imputation
-model_dat_filt <- model_data[, c(baseline_preds, outcome_vars) ] %>% 
+model_dat_filt_all <- model_data[, c(baseline_preds, outcome_vars) ] %>% 
   filter(!is.na(any_cvd), !is.na(any_chd), !is.na(cvd_death), !is.na(chd_death))
 
-
+model_dat_filt <- model_data[model_data$nsrrid %in% no_prev_ids, c(baseline_preds, outcome_vars) ] %>% 
+  filter(!is.na(any_cvd), !is.na(any_chd), !is.na(cvd_death), !is.na(chd_death))
 # SAVE DATA ---------------------------------------------------------------
 # Taking out preds_both
 save(shhs1, shhs2, outcomes, preds, outcome_vars, file = "../../data/processed_data.rda")
-save(model_dat_filt, file = '../../data/model_data_no_impute.rda')
+save(model_dat_filt, model_dat_filt_all, file = '../../data/model_data_no_impute.rda')
 
