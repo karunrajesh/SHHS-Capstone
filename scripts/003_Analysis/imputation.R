@@ -21,12 +21,21 @@ library(mice)
 # LOAD DATA ---------------------------------------------------------------
 load('../../data/model_data_no_impute.rda')
 load('../../data/processed_data.rda')
-############## IMPUTATION METHODS ##################
 
 # First convert categorical variables to factors
 categorical_vars <- c("gender", "race", "mstat", "legcrp02", "educat")
 model_dat_filt <- model_dat_filt %>%
   mutate_at(categorical_vars, factor)
+
+train_ind <- sample(1:nrow(model_dat_filt), size = floor(nrow(model_dat_filt)*.7))
+test_ind <- 1:nrow(model_dat_filt)
+test_ind <- test_ind[!test_ind %in% train_ind]
+
+train_model_dat_filt <- model_dat_filt[train_ind,]
+test_model_dat_filt <- model_dat_filt[test_ind,]
+
+############## IMPUTATION METHODS ##################
+
 
 ### Mode Imputation on Categorical Variables
 impute_mode <- function(cat_column){ 
@@ -37,10 +46,12 @@ impute_mode <- function(cat_column){
   return(cat_column)
 }
 
-imputed_categorical <- apply(model_dat_filt[,categorical_vars], 2, impute_mode)
+train_imputed_categorical <- apply(train_model_dat_filt[,categorical_vars], 2, impute_mode)
+test_imputed_categorical <- apply(test_model_dat_filt[,categorical_vars], 2, impute_mode)
+
 
 ### Mean Imputation on Numeric Variables
-numeric_vars <- colnames(model_dat_filt[,!names(model_dat_filt) %in% c(categorical_vars,outcome_vars)])
+numeric_vars <- colnames(train_model_dat_filt[,!names(train_model_dat_filt) %in% c(categorical_vars,outcome_vars)])
 
 impute_mean <- function(num_column){
   num_mean <- mean(num_column, na.rm = TRUE)
@@ -48,27 +59,42 @@ impute_mean <- function(num_column){
   return(num_column)
 }
 
-imputed_numeric <- apply(model_dat_filt[,numeric_vars], 2, impute_mean)
+train_imputed_numeric <- apply(train_model_dat_filt[,numeric_vars], 2, impute_mean)
+test_imputed_numeric <- apply(test_model_dat_filt[,numeric_vars], 2, impute_mean)
 
-trad_impute <- cbind(imputed_numeric, imputed_categorical, model_dat_filt[,outcome_vars])
-apply(trad_impute, 2, function(x) return(sum(is.na(x))))
+train_trad_impute <- cbind(train_imputed_numeric, train_imputed_categorical, train_model_dat_filt[,outcome_vars])
+apply(train_trad_impute, 2, function(x) return(sum(is.na(x))))
+
+test_trad_impute <- cbind(test_imputed_numeric, test_imputed_categorical, test_model_dat_filt[,outcome_vars])
+apply(train_trad_impute, 2, function(x) return(sum(is.na(x))))
 ### Linear Imputation on Numeric Variables (since we are not dealing with time-series, probably shouldn't use) TBD
 
 
 ### MICE method
-init <- mice(model_dat_filt, maxit=0) 
+init <- mice(train_model_dat_filt, maxit=0) 
 meth <- init$method
 predM <- init$predictorMatrix
 predM[, outcome_vars] <- 0 # removes outcome variables from being used as predictors for the imputation
 set.seed(103)
-mice_imputed = mice(model_dat_filt, method=meth, predictorMatrix=predM, m=5) # uses pmm method for imputation
-mice_imputed <- complete(mice_imputed)
-apply(mice_imputed, 2, function(x) return(sum(is.na(x))))
+train_mice_imputed = mice(train_model_dat_filt, method=meth, predictorMatrix=predM, m=5) # uses pmm method for imputation
+train_mice_imputed <- complete(train_mice_imputed)
+apply(train_mice_imputed, 2, function(x) return(sum(is.na(x))))
+
+init <- mice(test_model_dat_filt, maxit=0) 
+meth <- init$method
+predM <- init$predictorMatrix
+predM[, outcome_vars] <- 0 # removes outcome variables from being used as predictors for the imputation
+set.seed(103)
+test_mice_imputed = mice(test_model_dat_filt, method=meth, predictorMatrix=predM, m=5) # uses pmm method for imputation
+test_mice_imputed <- complete(test_mice_imputed)
+apply(test_mice_imputed, 2, function(x) return(sum(is.na(x))))
 ###########################
 
 # complete cases data
-model_dat_filt_cc <- model_dat_filt[complete.cases(model_dat_filt), ]
-
+train_model_dat_filt_cc <- train_model_dat_filt[complete.cases(train_model_dat_filt), ]
+test_model_dat_filt_cc <- test_model_dat_filt[complete.cases(test_model_dat_filt), ]
 # SAVE Imputed data models -------------------------------------------------------------
 
-save(model_dat_filt_cc, trad_impute, mice_imputed, file = '../../data/model_data_imputed.rda')
+
+save(train_model_dat_filt_cc, train_trad_impute, train_mice_imputed, file = '../../data/train_model_data_imputed.rda')
+save(test_model_dat_filt_cc, test_trad_impute, test_mice_imputed, file = '../../data/test_model_data_imputed.rda')
