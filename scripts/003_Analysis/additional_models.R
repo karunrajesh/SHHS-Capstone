@@ -20,13 +20,15 @@ library(mice)
 
 # Source cv function and model metrics
 source('cv_functions.R')
-
+source('imputation.R')
 # LOAD DATA ---------------------------------------------------------------
 
-load('../../data/model_data_imputed.rda')
+load('../../data/model_data_no_impute.rda')
+#load('../../data/model_data_imputed.rda')
 load('../../data/processed_data.rda')
 
-models = list("complete_cases" = model_dat_filt_cc, "TradImpute" = trad_impute, "MICEImpute" = mice_imputed)
+#models = list("complete_cases" = model_dat_filt_cc, "TradImpute" = trad_impute, "MICEImpute" = mice_imputed)
+impute_methods <- c("trad", "mice", "complete")
 
 sleep_preds <- c("supinep", "slpeffp", "slpprdp", "timeremp", 
                  "times34p", "timest1p", "timest2p", "waso",
@@ -57,7 +59,8 @@ data_cc <- model_dat_filt_cc[, c(names(model_dat_filt_cc)[names(model_dat_filt_c
 # get_model_metrics(factor(data_cc$any_cvd), factor(preds), "randomForest", "complete_cases")
 CV_MTRY = 1
 
-data_cc <- models[["complete_cases"]]
+#data_cc <- models[["complete_cases"]]
+data_cc <- imputation_runner(model_dat_filt, "complete")
 ## Train XGBoost
 tune_grid <- expand.grid(
   nrounds = seq(from = 200, to = 1000, by = 50),
@@ -108,6 +111,6 @@ test$xgb <- predict(xgb_model, test_final, missing = NaN)
 # CV TEST METRICS ---------------------------------------------------------
 
 # Next we'll get the full cross-validated test metrics using the mtry above.
-cv_results_rf( "TradImpute",model_statement, "any_cvd", models, sleep_preds, mtry_param = CV_MTRY) 
+cv_results_rf(model_dat_filt,model_statement, "any_cvd", sleep_preds, mtry_param = CV_MTRY, "trad") 
 
 
