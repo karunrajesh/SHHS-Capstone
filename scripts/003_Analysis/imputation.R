@@ -7,10 +7,6 @@
 
 # SETUP -------------------------------------------------------------------
 
-rm(list = ls())
-
-gc(reset = TRUE)
-
 library(tidyverse)
 library(ggplot2)
 library(corrplot)
