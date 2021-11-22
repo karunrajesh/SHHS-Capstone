@@ -25,8 +25,6 @@ source("cv_functions.R")
 # load('../../data/model_data_imputed.rda')
 load('../../data/model_data_no_impute.rda')
 load('../../data/processed_data.rda')
-load('../../data/baseline_model_metrics.rda')  
-load('../../tree_model_metrics.rda')
 
 
 models = list("Complete Cases" = model_dat_filt_cc, "Mean Imputation" = trad_impute, "MICE Imputation" = mice_imputed)
