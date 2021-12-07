@@ -26,124 +26,43 @@ source("cv_functions.R")
 load('../../data/model_data_no_impute.rda')
 load('../../data/processed_data.rda')
 
+# 
+# models = list("Complete Cases" = model_dat_filt_cc, "Mean Imputation" = trad_impute, "MICE Imputation" = mice_imputed)
 
-models = list("Complete Cases" = model_dat_filt_cc, "Mean Imputation" = trad_impute, "MICE Imputation" = mice_imputed)
+model1_covs <- c("supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 
-# BEST MODELS -------------------------------------------------------------
-metrics %>% 
-  filter(str_detect(model_form, "any_cvd")) %>% 
-  arrange(-PPV, -F1, FNR) %>% slice(1)
+model2_covs <- c("age_s1", "gender", "bmi_s1", "supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 
-# Logistic regression, Trad_Impute
-model_form_any_cvd <- "any_cvd ~ supinep+slpeffp+slpprdp+timeremp+times34p+timest1p+timest2p+waso+rdi3p+ai_all+avgsat+minsat"
 
-metrics %>% 
-  filter(str_detect(model_form, "any_chd")) %>% 
-  arrange(-PPV, -F1, FNR) %>% slice(1)
+# MODEL DEFINITIONS -------------------------------------------------------
 
-# Logistic regression, Trad_Impute
-model_form_any_chd <- "any_chd ~ supinep+slpeffp+slpprdp+timeremp+times34p+timest1p+timest2p+waso+rdi3p+ai_all+avgsat+minsat"
+# MODEL 1
+model_form_any_cvd1 <- paste0("any_cvd ~ ", paste0(model1_covs, collapse = "+"))
 
-metrics %>% 
-  filter(str_detect(model_form, "chd_death")) %>% 
-  arrange(-PPV, -F1, FNR) %>% slice(1)
-
-# Logistic regression, MICEImpute
-model_form_chd_death <- "chd_death ~ supinep+slpeffp+slpprdp+timeremp+times34p+timest1p+timest2p+waso+rdi3p+ai_all+avgsat+minsat"
-
-metrics %>% 
-  filter(str_detect(model_form, "cvd_death")) %>% 
-  arrange(-PPV, -F1, FNR) %>% slice(1)
-## No PPV, MICE Impute logistic regression has lowest FNR 
-model_form_cvd_death <- "cvd_death ~ supinep+slpeffp+slpprdp+timeremp+times34p+timest1p+timest2p+waso+rdi3p+ai_all+avgsat+minsat"
+# MODEL 2
+model_form_any_cvd2 <- paste0("any_cvd ~ ", paste0(model2_covs, collapse = "+"))
 
 
 # K-fold cross validation -------------------------------------------------
+K = 3
 
-cvd_results <- list()
+# MODEL 1
+cvd_results_model1 <- list()
 for(impute in c("complete", "trad", "mice")) {
-  cvd_results[[impute]] <- cv_results(model_dat_filt,model_form_any_cvd, "any_cvd", impute) 
+  cvd_results_model1[[impute]] <- cv_results(model_dat_filt,model_form_any_cvd1, "any_cvd", impute, K) 
 }
-# 
-# cvd_results = list()
-# for(name in names(models)){
-#   cvd_results[[name]] <- cv_results(models[[name]], model_form_any_cvd, 'any_cvd', models)
-# }
+# MODEL 2
+cvd_results_model2 <- list()
+for(impute in c("complete", "trad", "mice")) {
+  cvd_results_model2[[impute]] <- cv_results(model_dat_filt,model_form_any_cvd2, "any_cvd", impute, K) 
+}
 
-# chd_results = list()
-# for(name in names(models)){
-#   chd_results[[name]] <- cv_results(models[[name]], model_form_any_chd, 'any_chd', models)
-# }
-# 
-# 
-# cvd_death_results = list()
-# for(name in names(models)){
-#   cvd_death_results[[name]] <- cv_results(name, model_form_cvd_death, 'cvd_death', models)
-# }
-# 
-# chd_death_results = list()
-# for(name in names(models)){
-#   chd_death_results[[name]] <- cv_results(name, model_form_chd_death, 'chd_death', models)
-# }
+cvd_results_model1 <- map_df(cvd_results_model1, bind_rows)
+cvd_results_model2 <- map_df(cvd_results_model2, bind_rows)
 
 
+# SAVE RESULTS ------------------------------------------------------------
 
-cvd_results <- map_df(cvd_results, bind_rows)
-# chd_results <- map_df(chd_results, bind_rows)
-# cvd_death_results <- map_df(cvd_death_results, bind_rows)
-# chd_death_results <- map_df(chd_death_results, bind_rows)
+save(cvd_results_model1, cvd_results_model2, file = '../../data/cvd_baseline_model_metrics.rda')
 
-save(cvd_results, file = '../../data/cvd_baseline_model_metrics.rda')
-# 
-# 
-# # DOWNSAMPLE TO MODEL DEATH OUTCOMES --------------------------------------
-# cc_chd <- model_dat_filt_cc %>% filter(chd_death == 1) %>% nrow() # 180
-# cc_cvd <- model_dat_filt_cc %>% filter(cvd_death == 1) %>% nrow() # 180
-# whole_cvd <- mice_imputed %>% filter(cvd_death == 1) %>% nrow() # 235
-# whole_chd <- mice_imputed %>% filter(chd_death == 1) %>% nrow() # 359
-# 
-# models_ds_chd <- list(
-#   "Complete Cases" = bind_rows(
-#     model_dat_filt_cc %>% filter(chd_death == 0) %>% sample_n(cc_chd),
-#     model_dat_filt_cc %>% filter(chd_death == 1)
-#   ),
-#   "Mean Imputation"  = bind_rows(
-#     trad_impute %>% filter(chd_death == 0) %>% sample_n(whole_chd),
-#     trad_impute %>% filter(chd_death == 1)
-#   ),
-#   "MICE Imputation"  = bind_rows(
-#     mice_imputed %>% filter(chd_death == 0) %>% sample_n(whole_chd),
-#     mice_imputed %>% filter(chd_death == 1)
-#   )
-# )
-# 
-# models_ds_cvd <- list(
-#   "Complete Cases" = bind_rows(
-#     model_dat_filt_cc %>% filter(cvd_death == 0) %>% sample_n(cc_cvd),
-#     model_dat_filt_cc %>% filter(cvd_death == 1)
-#   ),
-#   "Mean Imputation"  = bind_rows(
-#     trad_impute %>% filter(cvd_death == 0) %>% sample_n(whole_cvd),
-#     trad_impute %>% filter(cvd_death == 1)
-#   ),
-#   "MICE Imputation"  = bind_rows(
-#     mice_imputed %>% filter(cvd_death == 0) %>% sample_n(whole_cvd),
-#     mice_imputed %>% filter(cvd_death == 1)
-#   )
-# )
-# 
-# 
-# cvd_death_results = list()
-# for(name in names(models_ds_cvd)){
-#   cvd_death_results[[name]] <- cv_results(name, model_form_cvd_death, 'cvd_death', models_ds_cvd)
-# }
-# 
-# chd_death_results = list()
-# for(name in names(models_ds_chd)){
-#   chd_death_results[[name]] <- cv_results(name, model_form_chd_death, 'chd_death', models_ds_chd)
-# }
-# 
-# 
-# cvd_death_results <- map_df(cvd_death_results, bind_rows)
-# chd_death_results <- map_df(chd_death_results, bind_rows)
     

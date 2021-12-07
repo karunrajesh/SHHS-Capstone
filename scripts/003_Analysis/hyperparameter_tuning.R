@@ -32,8 +32,9 @@ sleep_preds <- c("supinep", "slpeffp", "slpprdp", "timeremp",
                  "times34p", "timest1p", "timest2p", "waso",
                  "rdi3p", "ai_all", "avgsat", "minsat")
 
+model1_covs <- c("supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 
-
+model2_covs <- c("age_s1", "gender", "bmi_s1", "supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 # HYPERPARMETER TUNING ----------------------------------------------------
 # Hyperparameter tuning occurs on the complete cases version of the data
 ## A. RANDOM FOREST
@@ -44,12 +45,24 @@ control <- trainControl(method='cv', number=10, search = 'grid') # does repeated
 tunegrid <- expand.grid(.mtry = 1:length(sleep_preds))
 # # Initializing and fitting the random forest
 # rfRules allows for hyperparameter tuning on maxdepth as well as mtry
-rf_model_base <- train(data_cc[1:nrow(data_cc), sleep_preds], factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]), method = 'rf',
+
+# MODEL 1
+rf_model_base_model1 <- train(data_cc[1:nrow(data_cc), model1_covs], factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]), method = 'rf',
                        metric='Accuracy', tuneGrid=tunegrid, trControl = control)
 
-rf_model_base$bestTune
+rf_model_base_model1$bestTune
 #   mtry
 # 1    1
+
+# MODEL 2
+rf_model_base_model2 <- train(data_cc[1:nrow(data_cc), model2_covs], factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]), method = 'rf',
+                              metric='Accuracy', tuneGrid=tunegrid, trControl = control)
+
+rf_model_base_model2$bestTune
+# mtry
+# 12   12
+
+
 
 ## B. XGBOOST
 ## Train XGBoost
@@ -71,8 +84,10 @@ tune_control <- caret::trainControl(
   allowParallel = TRUE # FALSE for reproducible results 
 )
 
-xgb_tune <- caret::train(
-  data_cc[1:nrow(data_cc), sleep_preds], 
+
+# MODEL 1 
+xgb_tune_model1 <- caret::train(
+  data_cc[1:nrow(data_cc), model1_covs], 
   factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]),
   trControl = tune_control,
   tuneGrid = tune_grid,
@@ -80,13 +95,27 @@ xgb_tune <- caret::train(
   verbose = TRUE
 )
 
-xgb_tune$bestTune
-#   nrounds max_depth   eta gamma colsample_bytree min_child_weight subsample
-# 1     200         2 0.025     0                1                1         1
+xgb_tune_model1$bestTune
+# nrounds max_depth   eta gamma colsample_bytree min_child_weight subsample
+# 18     200         3 0.025     0                1                1         1
 
+
+# MODEL 2
+xgb_tune_model2 <- caret::train(
+  data_cc[1:nrow(data_cc), model2_covs], 
+  factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]),
+  trControl = tune_control,
+  tuneGrid = tune_grid,
+  method = "xgbTree",
+  verbose = TRUE
+)
+
+xgb_tune_model2$bestTune
+# nrounds max_depth   eta gamma colsample_bytree min_child_weight subsample
+# 20     300         3 0.025     0                1                1         1
 
 
 # SAVE OUT HYPERPARAMETERS --------------------------------------------------
 
-save(rf_model_base, xgb_tune, file ='../../data/hyperparameters.rda')
+save(rf_model_base_model1,rf_model_base_model2 , xgb_tune_model1, xgb_tune_model2, file ='../../data/hyperparameters.rda')
 

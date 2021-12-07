@@ -12,6 +12,7 @@ library(ggplot2)
 library(corrplot)
 library(glmnet)
 library(caret)
+library(PRROC)
 
 
 source("imputation.R")
@@ -36,20 +37,34 @@ get_model_metrics <- function(test_y, preds, model_type_input, model_form_input)
   return(metrics_output)
 }
 
+get_model_metrics_2 <- function(test_y, pred_probs, preds, model_type_input, model_form_input) {
+    metrics_output <- data.frame(
+      model_type = model_type_input,
+      model_form = model_form_input,
+      PPV = caret::precision(data = preds, reference = as.factor(test_y)),
+      recall = caret::recall(data = preds, reference = as.factor(test_y)),
+      F1 = caret::F_meas(data = preds, reference = as.factor(test_y))#,
+      # AUPRC = MLmetrics::PRAUC(y_pred = pred_probs, y_true = test_y)
+    )
+    return(metrics_output)
+  
+  }
+
 
 # Specific CV for logistic regression
-cv_results <- function(dt, model_form, outcome_var, impute_type) {
+cv_results <- function(dt, model_form, outcome_var, impute_type, K) {
   #dt <- models[[dataname]]
   # rows in data
   n = nrow(dt)
-  # number of folds to use for cross-validation
-  K = 10
+  # # number of folds to use for cross-validation
+  # K = 10
   # random ordering of all the available data
   permutation = sample(1:n)  
   # vector to hold metrics for each fold
   PPV_fold = rep(0,K)
   recall_fold = rep(0,K)
   F1_fold = rep(0,K)
+  # AUPRC_fold = rep(0,K)
   
   # loop through the K data splits and estimate test MSE for each
   for (j in 1:K) {
@@ -60,44 +75,47 @@ cv_results <- function(dt, model_form, outcome_var, impute_type) {
     train_dat <- imputation_runner(dt[pseudotrain, ], impute_type)
     test_dat <- imputation_runner(dt[pseudotest, ], impute_type)
     # 3. Fit model on pseudotrain
-    model <- glm(model_form, data = train_dat)
+    model <- glm(model_form, data = train_dat, family = "binomial")
     # 4. compute metrics on pseudotest
-    preds <- predict(model, test_dat, type = "response")
-    preds <- ifelse(preds > 0.5, 1, 0)
-    metrics <- get_model_metrics(as.factor(test_dat %>% select(any_cvd) %>% unlist()), as.factor(preds), "LogisticRegression", model_form)
+    preds_probs <- predict(model, test_dat, type = "response")
+    preds <- ifelse(preds_probs > 0.5, 1, 0)
+    metrics <- get_model_metrics_2(test_dat %>% select(any_cvd) %>% unlist(), preds_probs, as.factor(preds), "LogisticRegression", model_form)
     PPV_fold[j] = metrics$PPV[1]
     recall_fold[j] = metrics$recall[1]
     F1_fold[j] = metrics$F1[1]
+    # AUPRC_fold[j] = metrics$AUPRC[1]
   }
   PPV <- mean(PPV_fold, na.rm =T)
   recall <- mean(recall_fold, na.rm = T)
   F1 <- mean(F1_fold, na.rm = T)
+  # AUPRC <- mean(AUPRC_fold, na.rm = T)
   
   
   return(data.frame(
     data_type = impute_type,
     PPV = PPV,
     recall = recall,
-    F1 = F1
+    F1 = F1#,
+    # AUPRC = AUPRC
   ))
   
 }
 
 
 # Specific CV for random forest
-cv_results_rf <- function(dt, model_form, outcome_var, pred_names, mtry_param, impute_type) {
+cv_results_rf <- function(dt, model_form, outcome_var, pred_names, mtry_param, impute_type, K) {
   #dt <- models[[dataname]]
   # rows in data
   n = nrow(dt)
   # number of folds to use for cross-validation
-  K = 10
+  # K = 10
   # random ordering of all the available data
   permutation = sample(1:n)  
   # vector to hold metrics for each fold
   PPV_fold = rep(0,K)
   recall_fold = rep(0,K)
   F1_fold = rep(0,K)
-  
+  AUPRC_fold = rep(0,K)
   # loop through the K data splits and estimate test MSE for each
   for (j in 1:K) {
     # 1. extract indices of units in the pseudo-test set for split j
@@ -109,32 +127,37 @@ cv_results_rf <- function(dt, model_form, outcome_var, pred_names, mtry_param, i
     model <- randomForest::randomForest(train_dat[, sleep_preds], factor(train_dat[["any_cvd"]]), mtry = mtry_param)
     # 4. compute metrics on pseudotest
     preds <- predict(model, test_dat, type = "response") %>% as.numeric()-1
-    metrics <- get_model_metrics(as.factor(test_dat[, "any_cvd"] %>% unlist()), as.factor(preds), "RandomForest", model_form)
+    # preds_probs <- predict(model, test_dat, type = "prob")
+    # print(preds_probs[,2])
+    metrics <- get_model_metrics(factor(test_dat[, "any_cvd"] %>% unlist()), as.factor(preds), "RandomForest", model_form)
     PPV_fold[j] = metrics$PPV[1]
     recall_fold[j] = metrics$recall[1]
     F1_fold[j] = metrics$F1[1]
+    # AUPRC_fold[j] = metrics$AUPRC[1]
   }
   PPV <- mean(PPV_fold, na.rm =T)
   recall <- mean(recall_fold, na.rm = T)
   F1 <- mean(F1_fold, na.rm = T)
+  # AUPRC <- mean(AUPRC_fold, na.rm = T)
   
   
   return(data.frame(
     data_type = impute_type,
     PPV = PPV,
     recall = recall,
-    F1 = F1
+    F1 = F1#,
+    # AUPRC = AUPRC
   ))
   
 }
 
 # Specific CV for random forest
-cv_results_xgb <- function(dt, model_form, outcome_var, pred_names, xgb_tune, impute_type) {
+cv_results_xgb <- function(dt, model_form, outcome_var, pred_names, xgb_tune, impute_type, K) {
   #dt <- models[[dataname]]
   # rows in data
   n = nrow(dt)
   # number of folds to use for cross-validation
-  K = 10
+  # K = 10
   # random ordering of all the available data
   permutation = sample(1:n)  
   # vector to hold metrics for each fold

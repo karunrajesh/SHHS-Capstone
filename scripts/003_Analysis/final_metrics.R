@@ -22,15 +22,56 @@ load('../../data/cvd_baseline_model_metrics.rda')
 
 # COMBINE METRICS ---------------------------------------------------------
 
-cvd_results$model_type <- "logisticRegression"
+cvd_results_model1$model_type <- "logisticRegression"
+cvd_results_model2$model_type <- "logisticRegression"
 
-results <- bind_rows(
-  cvd_results,
-  random_forests,
-  xgboosts
+cvd_results_model1 <- cvd_results_model1 %>% 
+  mutate(
+    model_type = "logisticRegression",
+    model_form = "Model 1"
+  )
+
+cvd_results_model2 <- cvd_results_model2 %>% 
+  mutate(
+    model_type = "logisticRegression",
+    model_form = "Model 2"
+  )
+
+random_forests_model1 <- random_forests_model1 %>% 
+  mutate(
+    model_form = "Model 1"
+  )
+
+random_forests_model2 <- random_forests_model2 %>% 
+  mutate(
+    model_form = "Model 2"
+  )
+
+xgboosts_model1 <- xgboosts_model1 %>% 
+  mutate(
+    model_form = "Model 1"
+  )
+
+xgboosts_model2 <- xgboosts_model2 %>% 
+  mutate(
+    model_form = "Model 2"
+  )
+
+
+results_model1 <- bind_rows(
+  cvd_results_model1,
+  random_forests_model1,
+  xgboosts_model1,
 )
 
-knitr::kable(results)
+results_model2 <- bind_rows(
+  cvd_results_model2,
+  random_forests_model2,
+  xgboosts_model2
+)
+
+knitr::kable(results_model1) %>% kableExtra::kable_styling()
+knitr::kable(results_model2) %>% kableExtra::kable_styling()
 # 
 # |data_type |       PPV|    recall|        F1|model_type         |
 # |:---------|---------:|---------:|---------:|:------------------|
