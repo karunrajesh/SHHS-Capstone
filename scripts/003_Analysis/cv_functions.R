@@ -43,8 +43,8 @@ get_model_metrics_2 <- function(test_y, pred_probs, preds, model_type_input, mod
       model_form = model_form_input,
       PPV = caret::precision(data = preds, reference = as.factor(test_y)),
       recall = caret::recall(data = preds, reference = as.factor(test_y)),
-      F1 = caret::F_meas(data = preds, reference = as.factor(test_y))#,
-      # AUPRC = MLmetrics::PRAUC(y_pred = pred_probs, y_true = test_y)
+      F1 = caret::F_meas(data = preds, reference = as.factor(test_y)),
+      AUPRC = MLmetrics::PRAUC(y_pred = pred_probs, y_true = test_y)
     )
     return(metrics_output)
   
@@ -64,7 +64,7 @@ cv_results <- function(dt, model_form, outcome_var, impute_type, K) {
   PPV_fold = rep(0,K)
   recall_fold = rep(0,K)
   F1_fold = rep(0,K)
-  # AUPRC_fold = rep(0,K)
+  AUPRC_fold = rep(0,K)
   
   # loop through the K data splits and estimate test MSE for each
   for (j in 1:K) {
@@ -83,20 +83,20 @@ cv_results <- function(dt, model_form, outcome_var, impute_type, K) {
     PPV_fold[j] = metrics$PPV[1]
     recall_fold[j] = metrics$recall[1]
     F1_fold[j] = metrics$F1[1]
-    # AUPRC_fold[j] = metrics$AUPRC[1]
+    AUPRC_fold[j] = metrics$AUPRC[1]
   }
   PPV <- mean(PPV_fold, na.rm =T)
   recall <- mean(recall_fold, na.rm = T)
   F1 <- mean(F1_fold, na.rm = T)
-  # AUPRC <- mean(AUPRC_fold, na.rm = T)
+  AUPRC <- mean(AUPRC_fold, na.rm = T)
   
   
   return(data.frame(
     data_type = impute_type,
     PPV = PPV,
     recall = recall,
-    F1 = F1#,
-    # AUPRC = AUPRC
+    F1 = F1,
+    AUPRC = AUPRC
   ))
   
 }
@@ -127,26 +127,26 @@ cv_results_rf <- function(dt, model_form, outcome_var, pred_names, mtry_param, i
     model <- randomForest::randomForest(train_dat[, sleep_preds], factor(train_dat[["any_cvd"]]), mtry = mtry_param)
     # 4. compute metrics on pseudotest
     preds <- predict(model, test_dat, type = "response") %>% as.numeric()-1
-    # preds_probs <- predict(model, test_dat, type = "prob")
+    preds_probs <- predict(model, test_dat, type = "prob")
     # print(preds_probs[,2])
-    metrics <- get_model_metrics(factor(test_dat[, "any_cvd"] %>% unlist()), as.factor(preds), "RandomForest", model_form)
+    metrics <- get_model_metrics_2(test_dat[, "any_cvd"] %>% unlist(), preds_probs[,2], as.factor(preds), "RandomForest", model_form)
     PPV_fold[j] = metrics$PPV[1]
     recall_fold[j] = metrics$recall[1]
     F1_fold[j] = metrics$F1[1]
-    # AUPRC_fold[j] = metrics$AUPRC[1]
+    AUPRC_fold[j] = metrics$AUPRC[1]
   }
   PPV <- mean(PPV_fold, na.rm =T)
   recall <- mean(recall_fold, na.rm = T)
   F1 <- mean(F1_fold, na.rm = T)
-  # AUPRC <- mean(AUPRC_fold, na.rm = T)
+  AUPRC <- mean(AUPRC_fold, na.rm = T)
   
   
   return(data.frame(
     data_type = impute_type,
     PPV = PPV,
     recall = recall,
-    F1 = F1#,
-    # AUPRC = AUPRC
+    F1 = F1,
+    AUPRC = AUPRC
   ))
   
 }
@@ -164,6 +164,7 @@ cv_results_xgb <- function(dt, model_form, outcome_var, pred_names, xgb_tune, im
   PPV_fold = rep(0,K)
   recall_fold = rep(0,K)
   F1_fold = rep(0,K)
+  AUPRC_fold = rep(0,K)
   
   # loop through the K data splits and estimate test MSE for each
   for (j in 1:K) {
@@ -188,25 +189,27 @@ cv_results_xgb <- function(dt, model_form, outcome_var, pred_names, xgb_tune, im
                         colsample_bytree=xgb_tune$bestTune$colsample_bytree,
                         eval_metric="error")
     
-    preds <- predict(xgb_model, newdata= test_dat_xgb, missing = NaN, type = "response")
-    preds <- as.numeric(preds > 0.5)
+    preds_probs <- predict(xgb_model, newdata= test_dat_xgb, missing = NaN, type = "response")
+    preds <- as.numeric(preds_probs > 0.5)
     # 4. compute metrics on pseudotest
     # preds <- predict(model, test_dat, type = "response") %>% as.numeric()-1
-    metrics <- get_model_metrics(as.factor(test_dat[, "any_cvd"] %>% unlist()), as.factor(preds), "RandomForest", model_form)
+    metrics <- get_model_metrics_2(test_dat[, "any_cvd"] %>% unlist(), preds_probs, as.factor(preds), "RandomForest", model_form)
     PPV_fold[j] = metrics$PPV[1]
     recall_fold[j] = metrics$recall[1]
     F1_fold[j] = metrics$F1[1]
+    AUPRC_fold[j] = metrics$AUPRC[1]
   }
   PPV <- mean(PPV_fold, na.rm =T)
   recall <- mean(recall_fold, na.rm = T)
   F1 <- mean(F1_fold, na.rm = T)
-  
+  AUPRC <- mean(AUPRC_fold, na.rm = T)
   
   return(data.frame(
     data_type = impute_type,
     PPV = PPV,
     recall = recall,
-    F1 = F1
+    F1 = F1,
+    AUPRC = AUPRC
   ))
   
 }

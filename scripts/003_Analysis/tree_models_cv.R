@@ -73,7 +73,7 @@ random_forests_model2 <- map_df(random_forests_model2, bind_rows)
 random_forests_model2$model_type <- 'randomForest_model2'
 
 
-## RANDOM FOREST
+## XGBOOST
 # MODEL 1
 xgboosts_model1 <- list()
 for(impute in c("complete", "trad", "mice")) {
