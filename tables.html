@@ -191,7 +191,6 @@ summary {
 </div>
 
 
-<p><em>Logistic Regression: Predicting any CVD</em></p>
 <table>
 <thead>
 <tr class="header">
@@ -199,30 +198,95 @@ summary {
 <th align="right">PPV</th>
 <th align="right">recall</th>
 <th align="right">F1</th>
+<th align="right">AUPRC</th>
+<th align="left">model_type</th>
+<th align="left">model_form</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">0.7545335</td>
-<td align="right">0.9930982</td>
-<td align="right">0.8555230</td>
+<td align="left">complete</td>
+<td align="right">0.7509069</td>
+<td align="right">0.9875269</td>
+<td align="right">0.8526298</td>
+<td align="right">0.3342331</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 1</td>
 </tr>
 <tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">0.7506667</td>
-<td align="right">0.9961607</td>
-<td align="right">0.8546727</td>
+<td align="left">trad</td>
+<td align="right">0.7470235</td>
+<td align="right">0.9895527</td>
+<td align="right">0.8512150</td>
+<td align="right">0.3358145</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 1</td>
 </tr>
 <tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.7477163</td>
-<td align="right">0.9951798</td>
-<td align="right">0.8525094</td>
+<td align="left">mice</td>
+<td align="right">0.7490413</td>
+<td align="right">0.9872195</td>
+<td align="right">0.8517651</td>
+<td align="right">0.3243342</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="even">
+<td align="left">complete</td>
+<td align="right">0.7477826</td>
+<td align="right">0.9860426</td>
+<td align="right">0.8504025</td>
+<td align="right">0.2963670</td>
+<td align="left">randomForest_model1</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="odd">
+<td align="left">trad</td>
+<td align="right">0.7456561</td>
+<td align="right">0.9912931</td>
+<td align="right">0.8509344</td>
+<td align="right">0.3022820</td>
+<td align="left">randomForest_model1</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="even">
+<td align="left">mice</td>
+<td align="right">0.7465450</td>
+<td align="right">0.9903871</td>
+<td align="right">0.8513212</td>
+<td align="right">0.3203540</td>
+<td align="left">randomForest_model1</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="odd">
+<td align="left">complete</td>
+<td align="right">0.7494975</td>
+<td align="right">0.9769858</td>
+<td align="right">0.8479401</td>
+<td align="right">0.3118164</td>
+<td align="left">xgBoost_model1</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="even">
+<td align="left">trad</td>
+<td align="right">0.7437236</td>
+<td align="right">0.9808992</td>
+<td align="right">0.8458435</td>
+<td align="right">0.3004446</td>
+<td align="left">xgBoost_model1</td>
+<td align="left">Model 1</td>
+</tr>
+<tr class="odd">
+<td align="left">mice</td>
+<td align="right">0.7438841</td>
+<td align="right">0.9818403</td>
+<td align="right">0.8463197</td>
+<td align="right">0.3064823</td>
+<td align="left">xgBoost_model1</td>
+<td align="left">Model 1</td>
 </tr>
 </tbody>
 </table>
-<p><em>Logistic Regression: Predicting any CHD</em></p>
 <table>
 <thead>
 <tr class="header">
@@ -230,156 +294,191 @@ summary {
 <th align="right">PPV</th>
 <th align="right">recall</th>
 <th align="right">F1</th>
+<th align="right">AUPRC</th>
+<th align="left">model_type</th>
+<th align="left">model_form</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">NaN</td>
-<td align="right">1.0000000</td>
-<td align="right">NaN</td>
+<td align="left">complete</td>
+<td align="right">0.7870786</td>
+<td align="right">0.9274863</td>
+<td align="right">0.8508921</td>
+<td align="right">0.4620533</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 2</td>
 </tr>
 <tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">NaN</td>
-<td align="right">1.0000000</td>
-<td align="right">NaN</td>
+<td align="left">trad</td>
+<td align="right">0.7900970</td>
+<td align="right">0.9279991</td>
+<td align="right">0.8533541</td>
+<td align="right">0.4703340</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 2</td>
 </tr>
 <tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.7726254</td>
-<td align="right">0.9990566</td>
-<td align="right">0.869867</td>
+<td align="left">mice</td>
+<td align="right">0.7859101</td>
+<td align="right">0.9297881</td>
+<td align="right">0.8516819</td>
+<td align="right">0.4659647</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="even">
+<td align="left">complete</td>
+<td align="right">0.7519712</td>
+<td align="right">0.9860858</td>
+<td align="right">0.8530156</td>
+<td align="right">0.3220480</td>
+<td align="left">randomForest_model2</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="odd">
+<td align="left">trad</td>
+<td align="right">0.7437983</td>
+<td align="right">0.9845877</td>
+<td align="right">0.8474161</td>
+<td align="right">0.3020835</td>
+<td align="left">randomForest_model2</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="even">
+<td align="left">mice</td>
+<td align="right">0.7453294</td>
+<td align="right">0.9866418</td>
+<td align="right">0.8490967</td>
+<td align="right">0.3029136</td>
+<td align="left">randomForest_model2</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="odd">
+<td align="left">complete</td>
+<td align="right">0.7568155</td>
+<td align="right">0.9173588</td>
+<td align="right">0.8292993</td>
+<td align="right">0.2878102</td>
+<td align="left">xgBoost_model2</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="even">
+<td align="left">trad</td>
+<td align="right">0.7479080</td>
+<td align="right">0.9137961</td>
+<td align="right">0.8221770</td>
+<td align="right">0.2789244</td>
+<td align="left">xgBoost_model2</td>
+<td align="left">Model 2</td>
+</tr>
+<tr class="odd">
+<td align="left">mice</td>
+<td align="right">0.7492692</td>
+<td align="right">0.9170237</td>
+<td align="right">0.8245752</td>
+<td align="right">0.2976047</td>
+<td align="left">xgBoost_model2</td>
+<td align="left">Model 2</td>
 </tr>
 </tbody>
 </table>
-<div id="results-without-exclusions" class="section level5">
-<h5>Results without exclusions</h5>
-<p><em>Logistic Regression: Predicting any CVD</em></p>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Imputation Type</th>
+<th align="left">data_type</th>
 <th align="right">PPV</th>
 <th align="right">recall</th>
 <th align="right">F1</th>
+<th align="right">AUPRC</th>
+<th align="left">model_type</th>
+<th align="left">model_form</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">0.7464531</td>
-<td align="right">0.9922535</td>
-<td align="right">0.8518859</td>
+<td align="left">complete</td>
+<td align="right">0.7890068</td>
+<td align="right">0.9074462</td>
+<td align="right">0.8440758</td>
+<td align="right">0.4536024</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 3</td>
 </tr>
 <tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">0.7659210</td>
-<td align="right">0.9929575</td>
-<td align="right">0.8647045</td>
+<td align="left">trad</td>
+<td align="right">0.7994139</td>
+<td align="right">0.8962699</td>
+<td align="right">0.8450056</td>
+<td align="right">0.4717066</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 3</td>
 </tr>
 <tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.7670953</td>
-<td align="right">0.9937956</td>
-<td align="right">0.8654199</td>
+<td align="left">mice</td>
+<td align="right">0.7932133</td>
+<td align="right">0.8969104</td>
+<td align="right">0.8411820</td>
+<td align="right">0.4765678</td>
+<td align="left">logisticRegression</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="even">
+<td align="left">complete</td>
+<td align="right">0.7526357</td>
+<td align="right">0.9399007</td>
+<td align="right">0.8357781</td>
+<td align="right">0.2936573</td>
+<td align="left">randomForest_model3</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="odd">
+<td align="left">trad</td>
+<td align="right">0.7447062</td>
+<td align="right">0.9520869</td>
+<td align="right">0.8355892</td>
+<td align="right">0.2827851</td>
+<td align="left">randomForest_model3</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="even">
+<td align="left">mice</td>
+<td align="right">0.7506555</td>
+<td align="right">0.9461239</td>
+<td align="right">0.8371148</td>
+<td align="right">0.3055604</td>
+<td align="left">randomForest_model3</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="odd">
+<td align="left">complete</td>
+<td align="right">0.7544406</td>
+<td align="right">0.9178310</td>
+<td align="right">0.8280860</td>
+<td align="right">0.2919975</td>
+<td align="left">xgBoost_model3</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="even">
+<td align="left">trad</td>
+<td align="right">0.7516494</td>
+<td align="right">0.9251016</td>
+<td align="right">0.8292941</td>
+<td align="right">0.2913426</td>
+<td align="left">xgBoost_model3</td>
+<td align="left">Model 3</td>
+</tr>
+<tr class="odd">
+<td align="left">mice</td>
+<td align="right">0.7547967</td>
+<td align="right">0.9227997</td>
+<td align="right">0.8299394</td>
+<td align="right">0.3137731</td>
+<td align="left">xgBoost_model3</td>
+<td align="left">Model 3</td>
 </tr>
 </tbody>
 </table>
-<p><em>Logistic Regression: Predicting any CHD</em></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Imputation Type</th>
-<th align="right">PPV</th>
-<th align="right">recall</th>
-<th align="right">F1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">0.6888218</td>
-<td align="right">1</td>
-<td align="right">0.8157424</td>
-</tr>
-<tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">0.7242063</td>
-<td align="right">1</td>
-<td align="right">0.8400460</td>
-</tr>
-<tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.7435388</td>
-<td align="right">1</td>
-<td align="right">0.8528838</td>
-</tr>
-</tbody>
-</table>
-<p><em>Logistic Regression: Predicting Death from CHD</em></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Imputation Type</th>
-<th align="right">PPV</th>
-<th align="right">recall</th>
-<th align="right">F1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">0.5058253</td>
-<td align="right">0.6701829</td>
-<td align="right">0.5726259</td>
-</tr>
-<tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">0.4480263</td>
-<td align="right">0.6401211</td>
-<td align="right">0.5213840</td>
-</tr>
-<tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.4632610</td>
-<td align="right">0.6101613</td>
-<td align="right">0.5159604</td>
-</tr>
-</tbody>
-</table>
-<p><em>Logistic Regression: Predicting Death from CVD</em></p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Imputation Type</th>
-<th align="right">PPV</th>
-<th align="right">recall</th>
-<th align="right">F1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Complete Cases</td>
-<td align="right">0.4860858</td>
-<td align="right">0.6510366</td>
-<td align="right">0.5520659</td>
-</tr>
-<tr class="even">
-<td align="left">Mean Imputation</td>
-<td align="right">0.4899192</td>
-<td align="right">0.6659909</td>
-<td align="right">0.5616477</td>
-</tr>
-<tr class="odd">
-<td align="left">MICE Imputation</td>
-<td align="right">0.4917193</td>
-<td align="right">0.6927131</td>
-<td align="right">0.5684330</td>
-</tr>
-</tbody>
-</table>
-</div>
 
 
 
