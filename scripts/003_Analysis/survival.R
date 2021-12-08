@@ -52,9 +52,9 @@ coxph(Surv(event_dt, status) ~ supinep+slpeffp+slpprdp+timeremp+times34p+timest2
 
 
 # Demographics alone
-coxph(Surv(event_dt, status) ~ race+educat+age_s1, data = shhs_events_agg_cc_pred) %>% 
+coxph(Surv(event_dt, status) ~ race+educat+age_s1, data = shhs_events_agg_cc_pred) %>%
   gtsummary::tbl_regression(exponentiate = TRUE) 
 
 # clinical alone
-coxph(Surv(event_dt, status) ~ bmi_s1+height+waist+neck20+mstat+bp_s1+gh_s1+mcs_s1+mh_s1+pcs_s1+pf_s1+chol+hdl+trig+diasbp+systbp+fev1+fvc, data = shhs_events_agg_cc_pred) %>% 
+ coxph(Surv(event_dt, status) ~ bmi_s1+height+waist+neck20+mstat+bp_s1+gh_s1+mcs_s1+mh_s1+pcs_s1+pf_s1+chol+hdl+trig+diasbp+systbp+fev1+fvc, data = shhs_events_agg_cc_pred) %>% 
   gtsummary::tbl_regression(exponentiate = TRUE) 

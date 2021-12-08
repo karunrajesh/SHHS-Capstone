@@ -35,6 +35,9 @@ sleep_preds <- c("supinep", "slpeffp", "slpprdp", "timeremp",
 model1_covs <- c("supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 
 model2_covs <- c("age_s1", "gender", "bmi_s1", "supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
+
+model3_covs <- c("waso", "timest1p", "timest2p", "times34p", "timeremp", "supinep",  "ai_all",   "rdi3p", "slpprdp", "slpeffp",  "gender",   "race",  "mstat",  "systbp", "diasbp",  "chol",  "hdl",  "trig",    "fev1",     "fvc",      "neck20",   "legcrp02", "pf_s1",    "bp_s1",    "gh_s1",    "mh_s1",    "pcs_s1", 
+                 "mcs_s1",   "age_s1",   "ess_s1",   "bmi_s1",   "educat",   "waist",    "height",   "avgsat",   "minsat")  
 # HYPERPARMETER TUNING ----------------------------------------------------
 # Hyperparameter tuning occurs on the complete cases version of the data
 ## A. RANDOM FOREST
@@ -63,6 +66,13 @@ rf_model_base_model2$bestTune
 # 12   12
 
 
+# MODEL 3
+rf_model_base_model3 <- train(data_cc[1:nrow(data_cc), model3_covs], factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]), method = 'rf',
+                              metric='Accuracy', tuneGrid=tunegrid, trControl = control)
+
+rf_model_base_model3$bestTune
+# mtry
+# 12   12
 
 ## B. XGBOOST
 ## Train XGBoost
@@ -114,8 +124,20 @@ xgb_tune_model2$bestTune
 # nrounds max_depth   eta gamma colsample_bytree min_child_weight subsample
 # 20     300         3 0.025     0                1                1         1
 
+# MODEL 3
+xgb_tune_model3 <- caret::train(
+  data_cc[1:nrow(data_cc), model3_covs], 
+  factor(data_cc[1:nrow(data_cc), ][["any_cvd"]]),
+  trControl = tune_control,
+  tuneGrid = tune_grid,
+  method = "xgbTree",
+  verbose = TRUE
+)
+
+xgb_tune_model3$bestTune
+
 
 # SAVE OUT HYPERPARAMETERS --------------------------------------------------
 
-save(rf_model_base_model1,rf_model_base_model2 , xgb_tune_model1, xgb_tune_model2, file ='../../data/hyperparameters.rda')
+save(rf_model_base_model1,rf_model_base_model2 , rf_model_base_model3,xgb_tune_model1, xgb_tune_model2,xgb_tune_model3,  file ='../../data/hyperparameters.rda')
 

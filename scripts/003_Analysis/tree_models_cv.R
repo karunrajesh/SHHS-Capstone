@@ -41,6 +41,9 @@ model1_covs <- c("supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "times
 
 model2_covs <- c("age_s1", "gender", "bmi_s1", "supinep", "slpeffp", "slpprdp", "timeremp", "times34p", "timest1p", "timest2p", "waso", "rdi3p", "ai_all", "avgsat", "minsat")
 
+model3_covs <- c("waso", "timest1p", "timest2p", "times34p", "timeremp", "supinep",  "ai_all",   "rdi3p", "slpprdp", "slpeffp",  "gender",   "race",  "mstat",  "systbp", "diasbp",  "chol",  "hdl",  "trig",    "fev1",     "fvc",      "neck20",   "legcrp02", "pf_s1",    "bp_s1",    "gh_s1",    "mh_s1",    "pcs_s1", 
+                 "mcs_s1",   "age_s1",   "ess_s1",   "bmi_s1",   "educat",   "waist",    "height",   "avgsat",   "minsat")  
+
 
 # SET K FOR CV ------------------------------------------------------------
 
@@ -73,6 +76,18 @@ random_forests_model2 <- map_df(random_forests_model2, bind_rows)
 random_forests_model2$model_type <- 'randomForest_model2'
 
 
+# MODEL 3
+model_statement3 = paste0('factor(any_cvd) ~ ', paste0(model3_covs, collapse = " + "))
+# Next we'll get the full cross-validated test metrics using the mtry above.
+random_forests_model3 <- list()
+for(impute in c("complete", "trad", "mice")) {
+  random_forests_model3[[impute]] <- cv_results_rf(model_dat_filt,model_statement3, "any_cvd", sleep_preds, mtry_param = rf_model_base_model3$bestTune %>% as.numeric(), impute, K) 
+}
+
+random_forests_model3 <- map_df(random_forests_model3, bind_rows)
+random_forests_model3$model_type <- 'randomForest_model3'
+
+
 ## XGBOOST
 # MODEL 1
 xgboosts_model1 <- list()
@@ -92,7 +107,16 @@ for(impute in c("complete", "trad", "mice")) {
 xgboosts_model2 <- map_df(xgboosts_model2, bind_rows)
 xgboosts_model2$model_type <- 'xgBoost_model2'
 
+# MODEL 3
+xgboosts_model3 <- list()
+for(impute in c("complete", "trad", "mice")) {
+  xgboosts_model3[[impute]] <- cv_results_xgb(model_dat_filt,model_statement3, "any_cvd", sleep_preds, xgb_tune_model3, impute, K) 
+}
+
+xgboosts_model3 <- map_df(xgboosts_model3, bind_rows)
+xgboosts_model3$model_type <- 'xgBoost_model3'
+
 
 # SAVE MODEL RESULTS ------------------------------------------------------
-save(random_forests_model1, random_forests_model2, xgboosts_model1, xgboosts_model2, file = '../../data/tree_model_metrics.rda')
+save(random_forests_model1, random_forests_model2, random_forests_model3, xgboosts_model1, xgboosts_model2,xgboosts_model3, file = '../../data/tree_model_metrics.rda')
 

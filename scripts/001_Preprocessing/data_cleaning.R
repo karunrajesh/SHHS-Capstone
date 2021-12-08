@@ -81,10 +81,10 @@ model_data <- shhs1[, baseline_preds] %>%
 
 # Create a set of data that has baseline predictors and incident outcomes, no imputation
 model_dat_filt_all <- model_data[, c(baseline_preds, outcome_vars) ] %>% 
-  filter(!is.na(any_cvd), !is.na(any_chd), !is.na(cvd_death), !is.na(chd_death))
+  filter(!is.na(any_cvd))
 
 model_dat_filt <- model_data[model_data$nsrrid %in% no_prev_ids, c(baseline_preds, outcome_vars) ] %>% 
-  filter(!is.na(any_cvd), !is.na(any_chd), !is.na(cvd_death), !is.na(chd_death))
+  filter(!is.na(any_cvd))
 # SAVE DATA ---------------------------------------------------------------
 # Taking out preds_both
 save(shhs1, shhs2, outcomes, preds, outcome_vars, file = "../../data/processed_data.rda")
