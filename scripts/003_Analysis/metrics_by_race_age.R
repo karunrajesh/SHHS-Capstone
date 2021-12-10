@@ -51,168 +51,60 @@ train_dat$model3 <- factor(m3[[1]])
 train_dat$any_cvd <- factor(train_dat$any_cvd)
 
 # Model 1
+list(
+  "mod1_precision" =train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      precision=caret::precision(data=model1, reference=any_cvd)
+    ) ,
+  "mod1_recall" = train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      recall=caret::recall(data=model1, reference=any_cvd)
+    ),
+  "mod2_precision" = train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      precision=caret::precision(data=model2, reference=any_cvd)
+    ),
+  "mod2_recall" = train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      recall=caret::recall(data=model2, reference=any_cvd)
+    ),
+  "mod3_recall" = train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      precision=caret::precision(data=model3, reference=any_cvd)
+    ),
+  "mod3_precision" = train_dat %>% 
+    mutate(
+      age_cat = cut(age_s1, c(40,65, 80, 90), include.lowest = T)
+    ) %>% 
+    group_by(race, gender, age_cat) %>% 
+    summarize(
+      cnt = n(),
+      recall=caret::recall(data=model3, reference=any_cvd)
+    ) 
+) %>% openxlsx::write.xlsx('metrics_race_age_gender.xlsx')
 
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    precision=caret::precision(data=model1, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt| precision|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 0.8296703|
-# |    1|      1|(64,80] | 251| 0.5755102|
-# |    1|      1|(80,90] |  19| 0.5263158|
-# |    1|      2|[40,64] | 246| 0.9512195|
-# |    1|      2|(64,80] | 318| 0.7665615|
-# |    1|      2|(80,90] |  46| 0.4222222|
-# |    2|      1|(64,80] |  27| 0.4800000|
-# |    2|      1|(80,90] |   5| 0.8000000|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 0.8717949|
-# |    2|      2|(80,90] |   9| 0.2222222|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
-
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    recall=caret::recall(data=model1, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt|    recall|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 0.9869281|
-# |    1|      1|(64,80] | 251| 0.9791667|
-# |    1|      1|(80,90] |  19| 1.0000000|
-# |    1|      2|[40,64] | 246| 1.0000000|
-# |    1|      2|(64,80] | 318| 1.0000000|
-# |    1|      2|(80,90] |  46| 1.0000000|
-# |    2|      1|(64,80] |  27| 1.0000000|
-# |    2|      1|(80,90] |   5| 1.0000000|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 0.9714286|
-# |    2|      2|(80,90] |   9| 1.0000000|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
-
-# Model 2
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    precision=caret::precision(data=model2, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt| precision|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 0.8270270|
-# |    1|      1|(64,80] | 251| 0.6725146|
-# |    1|      1|(80,90] |  19|        NA|
-# |    1|      2|[40,64] | 246| 0.9512195|
-# |    1|      2|(64,80] | 318| 0.7634069|
-# |    1|      2|(80,90] |  46| 0.4666667|
-# |    2|      1|(64,80] |  27| 0.5294118|
-# |    2|      1|(80,90] |   5|        NA|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 0.8500000|
-# |    2|      2|(80,90] |   9| 0.4000000|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
-
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    recall=caret::recall(data=model2, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt|    recall|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 1.0000000|
-# |    1|      1|(64,80] | 251| 0.7986111|
-# |    1|      1|(80,90] |  19| 0.0000000|
-# |    1|      2|[40,64] | 246| 1.0000000|
-# |    1|      2|(64,80] | 318| 0.9958848|
-# |    1|      2|(80,90] |  46| 0.7368421|
-# |    2|      1|(64,80] |  27| 0.7500000|
-# |    2|      1|(80,90] |   5| 0.0000000|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 0.9714286|
-# |    2|      2|(80,90] |   9| 1.0000000|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
-
-# Model 3
-
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    precision=caret::precision(data=model3, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt| precision|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 0.8315217|
-# |    1|      1|(64,80] | 251| 0.6855346|
-# |    1|      1|(80,90] |  19| 1.0000000|
-# |    1|      2|[40,64] | 246| 0.9512195|
-# |    1|      2|(64,80] | 318| 0.7828947|
-# |    1|      2|(80,90] |  46| 0.5600000|
-# |    2|      1|(64,80] |  27| 0.5294118|
-# |    2|      1|(80,90] |   5| 1.0000000|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 0.8750000|
-# |    2|      2|(80,90] |   9| 0.0000000|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
-
-# Look at precision by race, age, and gender
-train_dat %>% 
-  mutate(
-    age_cat = cut(age_s1, c(40,64, 80, 90), include.lowest = T)
-  ) %>% 
-  group_by(race, gender, age_cat) %>% 
-  summarize(
-    cnt = n(),
-    recall=caret::recall(data=model3, reference=any_cvd)
-  ) %>% knitr::kable()
-
-# | race| gender|age_cat | cnt|    recall|
-# |----:|------:|:-------|---:|---------:|
-# |    1|      1|[40,64] | 185| 1.0000000|
-# |    1|      1|(64,80] | 251| 0.7569444|
-# |    1|      1|(80,90] |  19| 0.1000000|
-# |    1|      2|[40,64] | 246| 1.0000000|
-# |    1|      2|(64,80] | 318| 0.9794239|
-# |    1|      2|(80,90] |  46| 0.7368421|
-# |    2|      1|(64,80] |  27| 0.7500000|
-# |    2|      1|(80,90] |   5| 0.7500000|
-# |    2|      2|[40,64] |   1| 1.0000000|
-# |    2|      2|(64,80] |  41| 1.0000000|
-# |    2|      2|(80,90] |   9| 0.0000000|
-# |    3|      1|[40,64] |   2| 1.0000000|
-# |    3|      2|(64,80] |   3| 1.0000000|
