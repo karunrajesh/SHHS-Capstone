@@ -110,11 +110,11 @@ shhs1 %>%
 
 # distribution of age by gender
 model_dat_filt %>% 
-  mutate(gender = cut(gender, 2, labels=c('Male', 'Female')) ) %>% 
-  ggplot(aes(x = gender, y = age_s1, fill = gender)) +
+  mutate(Race = cut(race, 3, labels=c('White', 'Black', 'Other')) ) %>% 
+  ggplot(aes(x = Race, y = age_s1, fill = Race)) +
   scale_fill_viridis_d(alpha = 0.3) +
   theme_bw() +
-  xlab('Gender') +
+  xlab('Race') +
   ylab('Age at Baseline') +
   ggtitle('Distribution of Age across Gender') +
   geom_violin()

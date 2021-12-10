@@ -93,6 +93,38 @@ tbl1_data_demog <-  model_dat_filt[, c(demog, "any_cvd")] %>%
     `CVD` = factor(ifelse(any_cvd == 1, "Had CVD Outcome", "No CVD Outcome"))
   )
 
+tbl1_data_anthro <-  model_dat_filt[, c(anthro, "any_cvd")] %>% 
+  rename(
+    `Neck circumference at Baseline` = neck20,
+    `BMI at Baseline` = bmi_s1,
+    `Waist circumference at Baseline` = waist,
+    `Height` = height
+  ) %>% 
+  mutate(
+    `CVD` = factor(ifelse(any_cvd == 1, "Had CVD Outcome", "No CVD Outcome"))
+  )
+
+
+
+tbl1_data_health <- model_dat_filt[, c(clinical, health, "any_cvd")] %>% 
+  rename(
+    `Systolic blood pressure at Baseline`=systbp,
+    `Diastolic blood pressure at Baseline`=diasbp,
+    `Cholesterol at Baseline`=chol,
+    `HDL Cholesterol`=hdl,
+    `Triglycerides`=trig,
+    `Forced Expiratory Volume`=fev1,
+    `Forced Vital Capacity`=fvc,
+    `Physical Functioning Standardized Score`=pf_s1,
+    `Pain Index Standardized Score`=bp_s1,
+    `General Health Perceptions Standardized Score`=gh_s1,
+    `Mental Health Index Standardized Score`=mh_s1,
+    `Physical Component Scale Standardized Score`=pcs_s1,
+    `Mental Component Scale Standardized Score`=mcs_s1
+  ) %>% 
+  mutate(
+    `CVD` = factor(ifelse(any_cvd == 1, "Had CVD Outcome", "No CVD Outcome"))
+  )
 
 
 tbl1_sleep_arch <- table1(~ `Percent Time Supine` + `Sleep Efficiency` + `Total Sleep Duration` + 
@@ -106,5 +138,11 @@ tbl1_sleep_poly <- table1(~ `Overall Respiratory Disturbance Index (RDI) at >=3%
 
 tbl1_demog <- table1(~ Gender + Race + `Marital Status` + `Education Status` + `Age at Baseline` | `CVD`, data =tbl1_data_demog, overall=F, extra.col=list(`P-value`=pvalue))
 
+tbl1_anthro <-  table1(~`Neck circumference at Baseline` + `BMI at Baseline` +
+                        `Waist circumference at Baseline` + `Height` | `CVD`, data =tbl1_data_anthro, overall=F, extra.col=list(`P-value`=pvalue))
 
+tbl1_clinical <-  table1(~`Systolic blood pressure at Baseline` + `Diastolic blood pressure at Baseline` + `Cholesterol at Baseline` +
+  `HDL Cholesterol` + `Triglycerides` + `Forced Expiratory Volume` + `Forced Vital Capacity`  | `CVD`, data =tbl1_data_health, overall=F, extra.col=list(`P-value`=pvalue))
 
+tbl1_health <-  table1(~ `Physical Functioning Standardized Score` + `Pain Index Standardized Score` + `General Health Perceptions Standardized Score` +
+                           `Mental Health Index Standardized Score` + `Physical Component Scale Standardized Score` + `Mental Component Scale Standardized Score` | `CVD`, data =tbl1_data_health, overall=F, extra.col=list(`P-value`=pvalue))
