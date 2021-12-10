@@ -22,76 +22,104 @@ load('../../data/cvd_baseline_model_metrics.rda')
 
 # COMBINE METRICS ---------------------------------------------------------
 
-cvd_results_model1$model_type <- "logisticRegression"
-cvd_results_model2$model_type <- "logisticRegression"
 
-cvd_results_model1 <- cvd_results_model1 %>% 
-  mutate(
-    model_type = "logisticRegression",
-    model_form = "Model 1"
+# Put data type in row names
+row.names(cvd_results_model1) <- cvd_results_model1$data_type
+row.names(cvd_results_model2) <- cvd_results_model2$data_type
+row.names(cvd_results_model3) <- cvd_results_model3$data_type
+
+row.names(random_forests_model1) <- random_forests_model1$data_type
+row.names(random_forests_model2) <- random_forests_model2$data_type
+row.names(random_forests_model3) <- random_forests_model3$data_type
+
+row.names(xgboosts_model1) <- xgboosts_model1$data_type
+row.names(xgboosts_model2) <- xgboosts_model2$data_type
+row.names(xgboosts_model3) <- xgboosts_model3$data_type
+
+cvd_results_model1 <- cvd_results_model1 %>% select(-data_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+cvd_results_model2 <- cvd_results_model2 %>% select(-data_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+cvd_results_model3 <- cvd_results_model3 %>% select(-data_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+random_forests_model1 <- random_forests_model1 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+random_forests_model2 <- random_forests_model2 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+random_forests_model3 <- random_forests_model3 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+xgboosts_model1 <- xgboosts_model1 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+xgboosts_model2 <- xgboosts_model2 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+xgboosts_model3 <- xgboosts_model3 %>% select(-data_type, -model_type) %>% 
+  rownames_to_column %>%
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value)
+
+
+
+logisticReg <- cvd_results_model1 %>% 
+  left_join(
+    cvd_results_model2,
+    by = "variable",
+    suffix = c("", "_model2")
+  ) %>% 
+  left_join(
+    cvd_results_model3,
+    by = "variable",
+    suffix = c("", "_model3")
   )
 
-cvd_results_model2 <- cvd_results_model2 %>% 
-  mutate(
-    model_type = "logisticRegression",
-    model_form = "Model 2"
+randomForest <- random_forests_model1 %>% 
+  left_join(
+    random_forests_model2,
+    by = "variable",
+    suffix = c("", "_model2")
+  ) %>% 
+  left_join(
+    random_forests_model3,
+    by = "variable",
+    suffix = c("", "_model3")
   )
 
-cvd_results_model3 <- cvd_results_model3 %>% 
-  mutate(
-    model_type = "logisticRegression",
-    model_form = "Model 3"
+xgBoost <- xgboosts_model1 %>% 
+  left_join(
+    xgboosts_model2,
+    by = "variable",
+    suffix = c("", "_model2")
+  ) %>% 
+  left_join(
+    xgboosts_model3,
+    by = "variable",
+    suffix = c("", "_model3")
   )
 
-random_forests_model1 <- random_forests_model1 %>% 
-  mutate(
-    model_form = "Model 1"
-  )
 
-random_forests_model2 <- random_forests_model2 %>% 
-  mutate(
-    model_form = "Model 2"
-  )
+# OUTPUT ------------------------------------------------------------------
 
-random_forests_model3 <- random_forests_model3 %>% 
-  mutate(
-    model_form = "Model 3"
-  )
-
-xgboosts_model1 <- xgboosts_model1 %>% 
-  mutate(
-    model_form = "Model 1"
-  )
-
-xgboosts_model2 <- xgboosts_model2 %>% 
-  mutate(
-    model_form = "Model 2"
-  )
-
-xgboosts_model3 <- xgboosts_model3 %>% 
-  mutate(
-    model_form = "Model 3"
-  )
-
-results_model1 <- bind_rows(
-  cvd_results_model1,
-  random_forests_model1,
-  xgboosts_model1,
-)
-
-results_model2 <- bind_rows(
-  cvd_results_model2,
-  random_forests_model2,
-  xgboosts_model2
-)
-
-
-results_model3 <- bind_rows(
-  cvd_results_model3,
-  random_forests_model3,
-  xgboosts_model3
-)
-
-knitr::kable(results_model1) %>% kableExtra::kable_styling()
-knitr::kable(results_model2) %>% kableExtra::kable_styling()
-knitr::kable(results_model3) %>% kableExtra::kable_styling()
+openxlsx::write.xlsx(list(logisticReg, randomForest, xgBoost), file = 'model_metrics.xlsx')
